@@ -1,17 +1,114 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <title>Our simple HTTP server</title>
   <link rel="stylesheet" type="text/css" href="/style.css">
-  
+
   <script>
 
+    //Handles our FETCH response. This function is async because it
+    //contains an await.
+    const handleResponse = async (response) => {
+
+      //Grab the content section
+      const content = document.querySelector('#content');
+
+      //Based on the status code, display something
+      switch (response.status) {
+        case 200: //success
+          content.innerHTML = `<b>Success</b>`;
+          break;
+        case 201: //created
+          content.innerHTML = '<b>Created</b>';
+          break;
+        case 204: //updated (no response back from server)
+          content.innerHTML = '<b>Updated (No Content)</b>';
+          return;
+        case 400: //bad request
+          content.innerHTML = `<b>Bad Request</b>`;
+          break;
+        default: //any other status code
+          content.innerHTML = `Error code not implemented by client.`;
+          break;
+      }
+
+      //Parse the response to json. This works because we know the server always
+      //sends back json. Await because .json() is an async function.
+      const obj = await response.json();
+
+      //If we have a message, display it.
+      if (obj.message) {
+        content.innerHTML += `<p>${obj.message}</p>`;
+      }
+    };
+
+    //Uses fetch to send a postRequest. Marksed as async because we use await
+    //within it.
+    const sendPost = async (statusCodeType, responseFormat) => {
+      //Grab all the info from the form
+      //const url = statusCodeType.getAttribute('action');
+      const url = statusCodeType.value;
+      console.log(url)
+      const reponseFormatValue = responseFormat.value;
+
+      //Build a data string in the FORM-URLENCODED format.
+      let formData = `statudCode=${url}`;
+
+      //If the user selected JSON, send that instead
+      if (reponseFormatValue === 'application/json') {
+        formData = JSON.stringify({ url});
+      }
+
+      //Make a fetch request and await a response. Set the method to
+      //the one provided by the form (POST). Set the headers. Content-Type
+      //is the type of data we are sending. Accept is the data we would like
+      //in response. Then add our FORM-URLENCODED string as the body of the request.
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          'Content-Type': reponseFormatValue,
+          'Content-Length': formData.length,
+          'Accept': 'application/json',
+        }
+      });
+
+      //Once we have a response, handle it.
+      handleResponse(response);
+    };
+
+
+    //Init function is called when window.onload runs (set below).
+    const init = () => {
+      console.log("INIT")
+      //Grab the form
+      const statusCodeType = document.querySelector('#page');
+      const responseFormat = document.querySelector('#type');
+      const sendButton = document.querySelector('#send');
+
+      //Create an getResponseCode function that cancels the forms default action and
+      //calls our sendPost function above.
+      const getResponseCode = (e) => {
+        console.log("GETRESPONSE")
+
+        e.preventDefault();
+        sendPost(statusCodeType, responseFormat);
+        return false;
+      }
+
+      //Call getResponseCode when the submit event fires on the form.
+      sendButton.addEventListener('click', getResponseCode);
+    };
+
+    //When the window loads, run init.
+    window.onload = init;
   </script>
 </head>
+
 <body>
   <section id="top">
     <h3>Status Code Tests</h3>
-    <select id="page">
+    <select id="page" >
       <option value="/success">Success</option>
       <option value="/badRequest">Bad Request</option>
       <option value="/unauthorized">Unauthorized</option>
@@ -29,4 +126,5 @@
   <section id="content">
   </section>
 </body>
+
 </html>
