@@ -10,7 +10,6 @@ const port = process.env.PORT || process.env.NODE_PORT || 3000;
 // Recompiles the body of a request, and then calls the
 // appropriate handler once completed
 const parseBody = (request, response, handler) => {
-  console.log("parseBody");
 
   // pieces of the request are stored here
   const body = [];
@@ -55,35 +54,31 @@ const parseBody = (request, response, handler) => {
 
 // handle POST requests
 const handlePost = (request, response, parsedUrl) => {
-  console.log("handlePost");
 
   // If they go to /addUser
-  if (parsedUrl.pathname === '/addUser') {
+  if (parsedUrl.pathname === '/success') {
     // Call our below parseBody handler, and in turn pass in the
     // jsonHandler.addUser function as the handler callback function.
-    parseBody(request, response, jsonHandler.addUser);
+    parseBody(request, response, jsonHandler.handleStatusCode);
   }
 };
 
 // handle GET requests
 const handleGet = (request, response, parsedUrl) => {
-  console.log("handleGet");
-  console.log(parsedUrl)
-
   // route to correct method based on url
-  if (parsedUrl.pathname === '/style.css') {
+  if (parsedUrl.pathname === '/') {
+    htmlHandler.getIndex(request, response);
+  }
+  else if (parsedUrl.pathname === '/style.css') {
     htmlHandler.getCSS(request, response);
-  } 
-  else if(parsedUrl.pathname === '/success'){
-    
   }
   else {
-    htmlHandler.getIndex(request, response);
+    //htmlHandler.getIndex(request, response);
+    jsonHandler.handleStatusCode(request, response, parsedUrl)
   }
 };
 
 const onRequest = (request, response) => {
-  console.log("onRequest");
   // parse url into individual parts
   // returns an object of url parts by name
   const protocol = request.connection.encrypted ? 'https' : 'http';
