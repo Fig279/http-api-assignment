@@ -4,6 +4,7 @@ const query = require('querystring');
 // pull in our custom files
 const htmlHandler = require('./htmlResponses.js');
 const jsonHandler = require('./jsonResponses.js');
+const xmlHandler = require('./xmlResponses.js');
 
 const port = process.env.PORT || process.env.NODE_PORT || 3000;
 
@@ -52,16 +53,6 @@ const parseBody = (request, response, handler) => {
   });
 };
 
-// handle POST requests
-const handlePost = (request, response, parsedUrl) => {
-
-  // If they go to /addUser
-  if (parsedUrl.pathname === '/success') {
-    // Call our below parseBody handler, and in turn pass in the
-    // jsonHandler.addUser function as the handler callback function.
-    parseBody(request, response, jsonHandler.handleStatusCode);
-  }
-};
 
 // handle GET requests
 const handleGet = (request, response, parsedUrl) => {
@@ -72,6 +63,11 @@ const handleGet = (request, response, parsedUrl) => {
   else if (parsedUrl.pathname === '/style.css') {
     htmlHandler.getCSS(request, response);
   }
+  // for XML responses
+  else if (request.headers.accept === 'text/xml') {
+    xmlHandler.handleStatusCode(request, response, parsedUrl);
+  }
+  // default to JSON
   else {
     //htmlHandler.getIndex(request, response);
     jsonHandler.handleStatusCode(request, response, parsedUrl)
@@ -93,5 +89,5 @@ const onRequest = (request, response) => {
 };
 
 http.createServer(onRequest).listen(port, () => {
-  console.log(`Listening on 127.0.0.1: ${port}`);
+  console.log(`Listening on 127.0.0.1:${port}`);
 });
