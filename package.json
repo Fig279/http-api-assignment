@@ -17,5 +17,10 @@
   "bugs": {
     "url": "https://github.com/Fig279/http-api-assignment/issues"
   },
-  "homepage": "https://github.com/Fig279/http-api-assignment#readme"
+  "homepage": "https://github.com/Fig279/http-api-assignment#readme",
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.11.0",
+    "global": "^4.4.0"
+  }
 }
