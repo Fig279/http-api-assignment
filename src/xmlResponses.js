@@ -27,6 +27,7 @@ const respondXML = (request, response, status, object) => {
   response.end();
 };
 
+
 const handleStatusCode = (request, response, parsedUrl) => {
   // default xml message
   var responseXML = {
