@@ -8,51 +8,6 @@ const xmlHandler = require('./xmlResponses.js');
 
 const port = process.env.PORT || process.env.NODE_PORT || 3000;
 
-// Recompiles the body of a request, and then calls the
-// appropriate handler once completed
-const parseBody = (request, response, handler) => {
-
-  // pieces of the request are stored here
-  const body = [];
-
-  // If there is an error write it to the console and send
-  // back a 400-Bad Request error
-  request.on('error', (err) => {
-    console.dir(err);
-    response.statusCode = 400;
-    response.end();
-  });
-
-  // fired when we get a piece (or "chunk") of the body
-  // always recieve these chunks in the correct order.
-  request.on('data', (chunk) => {
-    body.push(chunk);
-  });
-
-  // request is finished sending and we have recieved the information
-  // When the request "ends", we can proceed
-  request.on('end', () => {
-    const bodyString = Buffer.concat(body).toString();
-    const type = request.headers['content-type'];
-    // xml
-    if (type === 'application/x-www-form-urlencoded') {
-      request.body = query.parse(bodyString);
-    } else if (type === 'application/json') {
-      // JSON
-      request.body = JSON.parse(bodyString);
-    } else {
-      // neither format = error
-      response.writeHead(400, { 'Content-Type': 'application/json' });
-      response.write(JSON.stringify({ error: 'invalid data format' }));
-      return response.end();
-    }
-
-    // call the handler with the bodyparams
-    // proceed much like we would with a GET request.
-    handler(request, response);
-  });
-};
-
 
 // handle GET requests
 const handleGet = (request, response, parsedUrl) => {
@@ -80,10 +35,7 @@ const onRequest = (request, response) => {
   const protocol = request.connection.encrypted ? 'https' : 'http';
   const parsedUrl = new URL(request.url, `${protocol}://${request.headers.host}`);
 
-  // check if method was POST or GET
-  if (request.method === 'POST') {
-    handlePost(request, response, parsedUrl);
-  } else if (request.method === 'GET') {
+if (request.method === 'GET') {
     handleGet(request, response, parsedUrl);
   }
 };
